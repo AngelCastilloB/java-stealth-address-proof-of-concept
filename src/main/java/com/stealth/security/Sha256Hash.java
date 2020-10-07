@@ -38,16 +38,6 @@ public class Sha256Hash
     {
     }
 
-    /**
-     * Creates a hash instance.
-     *
-     * @param hex The hash in hex format.
-     */
-    public Sha256Hash(String hex)
-    {
-        this(Convert.hexStringToByteArray(hex));
-    }
-
     /** Creates a hash instance from the given data.
      *
      * @param data 32-byte hash digest.
@@ -113,17 +103,6 @@ public class Sha256Hash
     public int hashCode()
     {
         return Arrays.hashCode(m_data);
-    }
-
-    /**
-     * Creates a string representation of the hash value of this object
-     *
-     * @return The string representation.
-     */
-    @Override
-    public String toString()
-    {
-        return Convert.toHexString(m_data);
     }
 
     /**

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2017 Fabian Meyer
  * Copyright (c) 2020 Angel Castillo.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 package com.stealth.security;
 
@@ -85,7 +85,7 @@ public class Sha256Digester
             byte[] blockData = new byte[64];
             for (int intIndex = 0; intIndex < 16; ++intIndex)
             {
-                byte[] numberSerialized = NumberSerializer.serialize(m_w[intIndex]);
+                byte[] numberSerialized = ByteBuffer.allocate(Integer.BYTES).putInt(m_w[intIndex]).array();
                 System.arraycopy(numberSerialized, 0, blockData, intIndex * 4, 4);
             }
             m_blocks.add(blockData);

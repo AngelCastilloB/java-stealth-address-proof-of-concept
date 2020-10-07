@@ -18,7 +18,6 @@ package com.stealth;
 
 /* IMPORTS *******************************************************************/
 
-import com.stealth.security.Convert;
 import com.stealth.security.EllipticCurveKeyPair;
 import com.stealth.security.EllipticCurveProvider;
 import org.bouncycastle.asn1.sec.SECNamedCurves;
@@ -39,6 +38,9 @@ import java.security.NoSuchAlgorithmException;
  */
 public class Main
 {
+    // Constants
+    private final static char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
+    
     // Static Fields
     private static final X9ECParameters     s_curve  = SECNamedCurves.getByName ("secp256k1");
     private static final ECDomainParameters s_domain = new ECDomainParameters(s_curve.getCurve(),
@@ -86,32 +88,39 @@ public class Main
         // Receiver: H(s·R)
         byte[] cReceiver = keyDerivationFunction(R.multiply(s).getEncoded(true));
 
-        System.out.printf("Sender computed secret: %s", Convert.toHexString(c));
-        System.out.printf("Receiver computed secret: %s", Convert.toHexString(cReceiver));
+        System.out.printf("Sender computed secret: %s\n", toHexString(c));
+        System.out.printf("Receiver computed secret: %s\n", toHexString(cReceiver));
 
         /*
          * The sender uses c·G + B as the ephemeral destination address for sending the payment.
          */
         byte[] publicKey = s_domain.getG().multiply(new BigInteger(c)).add(B).getEncoded(true);
-        System.out.printf("Sender computer ephemeral address: %s %n", Convert.toHexString(publicKey));
+        System.out.printf("Sender computed ephemeral address: %s \n", toHexString(publicKey));
 
         /*
          * The receiver actively monitors the blockchain and checks whether some transaction has been sent to the
-         * purported destination address c·G + B. Depending on whether the wallet is encrypted, the receiver can compute
-         * the same destination address in two different ways, i.e., c·G + B = (c + b)·G. If there is a match, the
-         * payment can be spent using the corresponding private key c + b. Note that the ephemeral private key c + b
-         * can only be computed by the receiver.
+         * purported destination address c·G + B. The receiver can compute the same destination address in two different
+         * ways, i.e., c·G + B = (c + b)·G. If there is a match, the payment can be spent using the corresponding
+         * private key c + b. Note that the ephemeral private key c + b can only be computed by the receiver.
          */
         byte[] receiverPublicKey = s_domain.getG().multiply(new BigInteger(c).add(b)).getEncoded(true);
-        System.out.printf("Receiver computer ephemeral address: %s %n", Convert.toHexString(receiverPublicKey));
+        System.out.printf("Receiver computed ephemeral address: %s \n", toHexString(receiverPublicKey));
 
         /*
          * The receiver can share the ‘scan private key’ s and the ‘spend public key’ B with an auditor/proxy server so
          * that those entities can scan the blockchain transaction on behalf of the receiver. However, they are not able
          * the compute the ephemeral private key c + b and spend the payment.
+         *
+         * The auditor/proxy server can compute the ephemeral public address as follows:
          */
+        byte[] auditorC = keyDerivationFunction(R.multiply(s).getEncoded(true));
+        System.out.printf("auditor/proxy computed secret: %s\n", toHexString(auditorC));
 
-        //TODO: how?
+        /*
+         * The auditor/proxy server now uses c·G + B to compute the ephemeral address.
+         */
+        byte[] auditorPublicKey = s_domain.getG().multiply(new BigInteger(auditorC)).add(B).getEncoded(true);
+        System.out.printf("auditor/proxy server computed ephemeral address: %s \n", toHexString(auditorPublicKey));
 
         /*
          * Compute the ephemeral private key c + b and spend the payment.
@@ -147,5 +156,27 @@ public class Main
         mac.init(new SecretKeySpec(new byte[33], "HmacSHA256"));
 
         return mac.doFinal(key);
+    }
+
+    /**
+     * Return the given byte array encoded as a hex string.
+     *
+     * @param bytes The data to be encoded.
+     *
+     * @return The encoded string
+     */
+    private static String toHexString(byte[] bytes)
+    {
+        char[] hexChars = new char[bytes.length * 2];
+
+        for (int i = 0; i < bytes.length; ++i)
+        {
+            int value = bytes[i] & 0xFF;
+
+            hexChars[i * 2]     = HEX_ARRAY[value >>> 4];
+            hexChars[i * 2 + 1] = HEX_ARRAY[value & 0x0F];
+        }
+
+        return new String(hexChars);
     }
 }
