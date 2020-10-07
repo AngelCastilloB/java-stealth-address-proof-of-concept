@@ -139,23 +139,25 @@ public class Main
         }
         else
         {
-            System.out.println("Did not verified!");
+            System.out.println("Did not verify!");
         }
     }
 
     /**
-     * We use HmacSHA256 to derivative a new key, using as a key and empty array (all zeroes).
+     * We use HmacSHA256 to derivative a new key.
      *
-     * @param key The new to be use to derivative a new key.
+     * @param seed The seed of the new key.
      *
      * @return The new key.
      */
-    public static byte[] keyDerivationFunction(byte[] key) throws NoSuchAlgorithmException, InvalidKeyException
+    public static byte[] keyDerivationFunction(byte[] seed) throws NoSuchAlgorithmException, InvalidKeyException
     {
         Mac mac = Mac.getInstance("HmacSHA256");
-        mac.init(new SecretKeySpec(new byte[33], "HmacSHA256"));
+        mac.init(new SecretKeySpec(
+                new byte[33]/* We use as a 'key' to the HMAC an array with all zeroes*/
+                , "HmacSHA256"));
 
-        return mac.doFinal(key);
+        return mac.doFinal(seed);
     }
 
     /**
