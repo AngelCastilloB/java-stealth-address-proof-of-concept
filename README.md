@@ -1,6 +1,9 @@
 # Stealth Address Proof of Concept in Java.
 
-Proof of concept of stealth address implementation in java
+Proof of concept of stealth address implementation in java.
+
+This POC was implemented following the description in this article:
+https://hackernoon.com/blockchain-privacy-enhancing-technology-series-stealth-address-i-c8a3eb4e4e43
 
 Build
 -----
