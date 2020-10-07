@@ -15,5 +15,5 @@ To build manually, create the executable with:
 License
 -------
 
-Thunderbolt is released under the terms of the Apache 2.0 license. See [LICENSE](LICENSE) for more
+This proof of concept is released under the terms of the Apache 2.0 license. See [LICENSE](LICENSE) for more
 information or see https://opensource.org/licenses/Apache-2.0.
